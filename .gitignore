@@ -25,6 +25,7 @@ Desktop.ini
 *.key
 *.cert
 *.pfx
+src/main/resources/keys/private_key.pem
 
 # --- Dependencias y Paquetes (Se regeneran con comandos) ---
 node_modules/
