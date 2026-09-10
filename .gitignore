@@ -35,6 +35,7 @@ vendor/
 .pub-cache/
 
 # --- Carpetas de Compilación y Producción ---
+target/
 dist/
 build/
 out/
