@@ -20,20 +20,17 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String nombre;
+    // Identificador unico que entrega Cognito para cada usuario (reemplaza email+password como llave)
+    @Column(name = "cognito_sub", nullable = false, unique = true)
+    private String cognitoSub;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
-    // Nunca se guarda en texto plano: siempre pasa por BCrypt antes de llegar aqui.
-    @Column(nullable = false)
-    private String password;
+    private String nombre;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Builder.Default
-    private Rol rol = Rol.CLIENTE;
+    // Espacio para datos de negocio extra que Cognito no maneja
+    private String preferencias;
 
     @Column(name = "creado_en", updatable = false)
     private LocalDateTime creadoEn;
@@ -41,10 +38,5 @@ public class Usuario {
     @PrePersist
     protected void onCreate() {
         this.creadoEn = LocalDateTime.now();
-    }
-
-    public enum Rol {
-        CLIENTE,
-        ADMIN
     }
 }
