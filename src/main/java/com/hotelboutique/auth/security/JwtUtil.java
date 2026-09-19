@@ -2,27 +2,20 @@ package com.hotelboutique.auth.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.util.Date;
 
-// NOTA: por ahora sigue usando HS256 (secreto compartido).
-// En el siguiente paso migramos esto a RS256 (clave privada/publica) para el esquema de microservicios.
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final RsaKeyProvider rsaKeyProvider;
 
     @Value("${jwt.expiration-ms}")
     private long expirationMs;
-
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
-    }
 
     public String generarToken(String email, String rol) {
         Date ahora = new Date();
@@ -33,7 +26,7 @@ public class JwtUtil {
                 .claim("rol", rol)
                 .issuedAt(ahora)
                 .expiration(expiracion)
-                .signWith(getSigningKey())
+                .signWith(rsaKeyProvider.getPrivateKey(), Jwts.SIG.RS256)
                 .compact();
     }
 
@@ -43,7 +36,7 @@ public class JwtUtil {
 
     private Claims parseClaims(String token) {
         return Jwts.parser()
-                .verifyWith(getSigningKey())
+                .verifyWith(rsaKeyProvider.getPublicKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
