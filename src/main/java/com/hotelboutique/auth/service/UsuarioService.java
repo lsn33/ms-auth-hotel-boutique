@@ -14,14 +14,15 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
-    // Se llama despues de que el usuario se registro/logueo en Cognito.
+    // Se llama despues de que el usuario se registro/logueo en Entra ID.
     // Crea el perfil local si no existe, o lo actualiza si ya existia.
     public UsuarioResponse sincronizar(Jwt token, SyncUsuarioRequest request) {
-        String sub = token.getSubject();
-        String email = token.getClaimAsString("email");
+        // Entra ID: oid = Object ID (equivalente a Cognito sub)
+        String oid = token.getClaimAsString("oid");
+        String email = token.getClaimAsString("preferred_username");
 
-        Usuario usuario = usuarioRepository.findByCognitoSub(sub)
-                .orElseGet(() -> Usuario.builder().cognitoSub(sub).build());
+        Usuario usuario = usuarioRepository.findByEntraOid(oid)
+                .orElseGet(() -> Usuario.builder().entraOid(oid).build());
 
         usuario.setEmail(email);
         usuario.setNombre(request.getNombre());
@@ -32,7 +33,8 @@ public class UsuarioService {
     }
 
     public UsuarioResponse obtenerPerfil(Jwt token) {
-        Usuario usuario = usuarioRepository.findByCognitoSub(token.getSubject())
+        String oid = token.getClaimAsString("oid");
+        Usuario usuario = usuarioRepository.findByEntraOid(oid)
                 .orElseThrow(() -> new IllegalArgumentException("Perfil no encontrado, sincroniza primero con /usuarios/sync"));
         return UsuarioResponse.desde(usuario);
     }

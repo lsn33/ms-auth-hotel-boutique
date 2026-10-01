@@ -20,16 +20,16 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Identificador unico que entrega Cognito para cada usuario (reemplaza email+password como llave)
-    @Column(name = "cognito_sub", nullable = false, unique = true)
-    private String cognitoSub;
+    // Identificador unico que entrega Entra ID para cada usuario (Object ID)
+    @Column(name = "entra_oid", nullable = false, unique = true)
+    private String entraOid;
 
     @Column(nullable = false)
     private String email;
 
     private String nombre;
 
-    // Espacio para datos de negocio extra que Cognito no maneja
+    // Espacio para datos de negocio extra que Entra ID no maneja
     private String preferencias;
 
     @Column(name = "creado_en", updatable = false)
