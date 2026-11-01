@@ -1,23 +1,29 @@
 package com.hotelboutique.auth.messaging;
 
 import com.hotelboutique.auth.event.EventoUsuario;
+import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Slf4j
 @Component
 public class NotificacionConsumer {
 
     @RabbitListener(queues = "${hotel.messaging.queues.notificaciones}")
-    public void onNotificacion(EventoUsuario evento) {
-        try {
-            log.info("Notificacion [{}] para {}", evento.tipo(), evento.usuarioEmail());
-        } catch (RuntimeException ex) {
-            log.error("Error al procesar notificacion del usuario {}, se envia a DLQ: {}",
-                    evento.usuarioEmail(), ex.getMessage(), ex);
-            throw new AmqpRejectAndDontRequeueException("Error al procesar notificacion", ex);
+    public void onNotificacion(EventoUsuario evento, Channel channel,
+                               @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
+        if (evento == null || evento.tipo() == null || evento.tipo().isBlank()) {
+            log.error("Notificacion invalida, NACK sin requeue");
+            channel.basicNack(tag, false, false);
+            return;
         }
+
+        log.info("Notificacion [{}] para {}", evento.tipo(), evento.usuarioEmail());
+        channel.basicAck(tag, false);
     }
 }
