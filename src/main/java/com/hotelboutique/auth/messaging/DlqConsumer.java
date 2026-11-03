@@ -21,7 +21,7 @@ public class DlqConsumer {
         registrar("q.notificaciones.dlq", mensaje, channel, tag);
     }
 
-    @RabbitListener(queues = "${hotel.messaging.dlq.tickets}")
+    // @RabbitListener(queues = "${hotel.messaging.dlq.tickets}")
     public void onTicketsDlq(Message mensaje, Channel channel,
                              @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
         registrar("q.tickets.dlq", mensaje, channel, tag);
