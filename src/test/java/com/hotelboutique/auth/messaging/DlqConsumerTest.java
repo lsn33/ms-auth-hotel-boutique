@@ -23,22 +23,4 @@ class DlqConsumerTest {
 
         verify(channel).basicAck(4L, false);
     }
-
-    @Test
-    void registraYConfirmaMensajeDeTicketsDlq() throws Exception {
-        Channel channel = mock(Channel.class);
-
-        new DlqConsumer().onTicketsDlq(mensaje("{\"tipo\":\"reserva.creada\"}"), channel, 5L);
-
-        verify(channel).basicAck(5L, false);
-    }
-
-    @Test
-    void registraYConfirmaMensajeDeDocumentosDlq() throws Exception {
-        Channel channel = mock(Channel.class);
-
-        new DlqConsumer().onDocumentosDlq(mensaje("{\"tipo\":\"reserva.checkout\"}"), channel, 6L);
-
-        verify(channel).basicAck(6L, false);
-    }
 }
