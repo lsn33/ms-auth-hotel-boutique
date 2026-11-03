@@ -15,22 +15,12 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class DlqConsumer {
 
-    @RabbitListener(queues = "${hotel.messaging.dlq.notificaciones}")
+    @RabbitListener(queues = "${hotel.messaging.dlq.notificaciones}",
+            ackMode = "MANUAL",
+            autoStartup = "${hotel.messaging.dlq.consumir:true}")
     public void onNotificacionesDlq(Message mensaje, Channel channel,
                                     @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
         registrar("q.notificaciones.dlq", mensaje, channel, tag);
-    }
-
-    @RabbitListener(queues = "${hotel.messaging.dlq.tickets}")
-    public void onTicketsDlq(Message mensaje, Channel channel,
-                             @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
-        registrar("q.tickets.dlq", mensaje, channel, tag);
-    }
-
-    @RabbitListener(queues = "${hotel.messaging.dlq.documentos}")
-    public void onDocumentosDlq(Message mensaje, Channel channel,
-                                @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
-        registrar("q.documentos.dlq", mensaje, channel, tag);
     }
 
     private void registrar(String cola, Message mensaje, Channel channel, long tag) throws IOException {
